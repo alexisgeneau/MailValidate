@@ -27,3 +27,11 @@ The next step is to publish files in your application with :
 ```
 
 Warning ! This command will replace 'AuthController' in your application to edit PostLogin function.
+
+### Migrate ###
+
+Finally, run migrate command to add column on users in your database :
+
+```
+    php artisan migrate
+```
