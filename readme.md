@@ -30,8 +30,10 @@ Warning ! This command will replace 'AuthController' in your application to edit
 
 ### Migrate ###
 
-Finally, run migrate command to add column on users in your database :
+Run migrate command to add column on users in your database :
 
 ```
     php artisan migrate
 ```
+
+Finally, add 'confirmation_token' and 'confirmed' in your $fillable on user model.
