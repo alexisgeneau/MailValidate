@@ -10,6 +10,8 @@ use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -78,13 +80,13 @@ class AuthController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
             'confirmation_token' => $confirmation_token
-            ]);
+        ]);
 
         Mail::send('emails.verify', [
-                'code' => $confirmation_token
-            ], function($message) {
+            'code' => $confirmation_token
+        ], function($message) {
             $message->to(Input::get('email'))->from('contact@contact.com')
-            ->subject('Verify your email address');
+                ->subject('Verify your email address');
         });
 
         return response('OK');
@@ -92,22 +94,21 @@ class AuthController extends Controller
 
     public function postLogin(Request $request)
     {
-        $rules = [
-            'username' => 'required|exists:users',
-            'password' => 'required'
-        ];
+        $this->validate($request, [
+            $this->loginUsername() => 'required', 'password' => 'required',
+        ]);
 
-        $input = Input::only('username', 'email', 'password');
+        // If the class is using the ThrottlesLogins trait, we can automatically throttle
+        // the login attempts for this application. We'll key this by the username and
+        // the IP address of the client making these requests into this application.
+        $throttles = $this->isUsingThrottlesLoginsTrait();
 
-        $validator = Validator::make($input, $rules);
-
-        if($validator->fails())
-        {
-            return Redirect::back()->withInput()->withErrors($validator);
+        if ($throttles && $this->hasTooManyLoginAttempts($request)) {
+            return $this->sendLockoutResponse($request);
         }
 
         $credentials = [
-            'username' => Input::get('username'),
+            'email' => Input::get('email'),
             'password' => Input::get('password'),
             'confirmed' => 1
         ];

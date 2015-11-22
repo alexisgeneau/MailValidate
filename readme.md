@@ -36,4 +36,14 @@ Run migrate command to add column on users in your database :
     php artisan migrate
 ```
 
-Finally, add 'confirmation_token' and 'confirmed' in your $fillable on user model.
+Add 'confirmation_token' and 'confirmed' in your $fillable on user model.
+
+### Routes ###
+
+To have mail validation add this lines in your routes.php
+```
+    Route::get('register/verify/{confirmationToken}', [
+        'as' => 'confirmation_path',
+        'uses' => 'RegistrationController@confirm'
+    ]);
+```
